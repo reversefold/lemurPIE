@@ -1,8 +1,8 @@
 import mox
 import unittest
 
-import fplib.action
-from fplib.action import make_action, ButtonActions, SingleAction, Action, Actions, KeyUp, KeyDown
+import lemur.action
+from lemur.action import make_action, ButtonActions, SingleAction, Action, Actions, KeyUp, KeyDown
 
 
 def l():
@@ -74,14 +74,14 @@ class TestActions(mox.MoxTestBase):
 class TestKeyActions(mox.MoxTestBase):
 	def setUp(self):
 		super(TestKeyActions, self).setUp()
-		fplib.action.keyboard = self.mox.CreateMockAnything()
+		lemur.action.keyboard = self.mox.CreateMockAnything()
 
 	def test_KeyDown(self):
-		fplib.action.keyboard.setKeyDown('d')
+		lemur.action.keyboard.setKeyDown('d')
 		self.mox.ReplayAll()
 		KeyDown('d')()
 
 	def test_KeyUp(self):
-		fplib.action.keyboard.setKeyUp('u')
+		lemur.action.keyboard.setKeyUp('u')
 		self.mox.ReplayAll()
 		KeyUp('u')()

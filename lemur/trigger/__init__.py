@@ -1,4 +1,4 @@
-from fplib import Error
+from lemur import Error
 
 class TriggerError(Error):
 	pass

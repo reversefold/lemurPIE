@@ -1,11 +1,11 @@
 if starting:
     import math
 
-    from fplib import *
-    from fplib.action import *
-    import fplib.action
-    fplib.action.keyboard = keyboard
-    fplib.action.mouse = mouse
+    from lemur import *
+    from lemur.action import *
+    import lemur.action
+    lemur.action.keyboard = keyboard
+    lemur.action.mouse = mouse
 
 #a, x, y, b
 #1, 2, 3, 4
