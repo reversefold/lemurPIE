@@ -1,7 +1,11 @@
 if starting:
-    import fplib
-    fplib.keyboard = keyboard
+    import math
+
     from fplib import *
+    from fplib.action import *
+    import fplib.action
+    fplib.action.keyboard = keyboard
+    fplib.action.mouse = mouse
 
 #a, x, y, b
 #1, 2, 3, 4
@@ -10,19 +14,14 @@ if starting:
 #Numpad 0, Numpad ., Sh-z, Sh-x
 
 #b, Sh-`, Mouse 4, `
- 
+
 if starting:
-    key_maps = {
-        'a': Key.D1,
-        'b': Key.D4,
-        'x': Key.D2,
-        'y': Key.D3,
-    }
     axis_maps = {
         'leftStickY': [Key.S, Key.W],
-        'leftStickX': [Key.A, Key.D],
+        'leftStickX': [Key.Q, Key.E],
     }
-    AXIS_THRESHOLD = 0.3
+    AXIS_THRESHOLD = 0.4
+    MOUSE_MULTIPLIER = 1.5
 
     key_maps = {
         None: {
@@ -33,6 +32,23 @@ if starting:
             'x': ButtonActions(Key.D2),
             'y': ButtonActions(Key.D3),
             'b': ButtonActions(Key.D4),
+            'leftShoulder': ButtonActions(MouseButtonDown(0), MouseButtonUp(0)),
+            'rightShoulder': ButtonActions(MouseButtonDown(1), MouseButtonUp(1)),
+            'leftThumb': ButtonActions(Key.Space),
+            #'rightThumb': ButtonActions(MouseButtonDown(0), MouseButtonUp(0)),
+            'down': ButtonActions(Key.B),
+            'left': ButtonActions(
+                [
+                    KeyDown(Key.LeftShift),
+                    KeyDown(Key.Grave),
+                    KeyUp(Key.LeftShift)
+                ],
+                KeyUp(Key.Grave)
+            ),
+            'up': ButtonActions(Key.NumberLock), #MouseButtonDown(3), MouseButtonUp(3)),
+            'right': ButtonActions(Key.Grave),
+            'back': ButtonActions(Key.M),
+            'start': ButtonActions(Key.Tab),
         },
         'leftTrigger': {
             'a': ButtonActions(Key.D5),
@@ -60,7 +76,8 @@ class WoWController(object):
             if button is None:
                 continue
             if getattr(xbc, button) > 0.25:
-                self.current_map = key_map
+                self.current_map = dict(self.key_maps[None])
+                self.current_map.update(key_map)
                 self.button_states[button] = True
             elif self.button_states.get(button, False):
                 self.current_map = self.key_maps[None]
@@ -74,7 +91,7 @@ class WoWController(object):
                 #keyboard.setKeyUp(key)
                 key.release()
                 self.button_states[button] = False
-                
+
         for axis, keys in axis_maps.iteritems():
             axis_val = getattr(xbc, axis)
             key = None
@@ -90,7 +107,12 @@ class WoWController(object):
                 keyboard.setKeyDown(key)
                 self.button_states[key] = True
 
+        if abs(xbc.rightStickX) > AXIS_THRESHOLD:
+            mouse.deltaX = (abs(xbc.rightStickX) - AXIS_THRESHOLD) / (1.0 - AXIS_THRESHOLD) * MOUSE_MULTIPLIER * math.copysign(1, xbc.rightStickX) # * (0.5 if xbc.rightThumb else 1)
+        if abs(xbc.rightStickY) > AXIS_THRESHOLD:
+            mouse.deltaY = (abs(xbc.rightStickY) - AXIS_THRESHOLD) / (1.0 - AXIS_THRESHOLD) * MOUSE_MULTIPLIER * -math.copysign(1, xbc.rightStickY) # * (0.5 if xbc.rightThumb else 1)
+
 if starting:
     wow_controller = WoWController(key_maps)
-    
+
 wow_controller.tick()
