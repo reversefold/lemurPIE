@@ -65,7 +65,7 @@ if starting:
             'b': ButtonActions(Key.Equals),
         }),
         ('leftTrigger,rightTrigger', {
-            'a': ButtonActions(Key.NumberPad0),
+            'a': ButtonActions(Key.Apostrophe),
             'x': ButtonActions(Key.NumberPadPeriod),
             'y': ButtonActions(
                 [KeyDown(Key.LeftShift), KeyDown(Key.Z), KeyUp(Key.LeftShift)],
