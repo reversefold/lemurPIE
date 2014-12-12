@@ -6,4 +6,4 @@ Includes an example script which customizes an XBox360 controller for use with W
 
 Donations welcome. [1BTC2wRiDCdWwzHf5P9u17odfUnHgpc6Ch](bitcoin:1BTC2wRiDCdWwzHf5P9u17odfUnHgpc6Ch?label=reversefold)
 
-[![Circle CI](https://circleci.com/gh/reversefold/lemurPIE.svg?style=svg)](https://circleci.com/gh/reversefold/lemurPIE)
+[![Circle CI](https://circleci.com/gh/reversefold/lemurPIE.svg?style=svg)](https://circleci.com/gh/reversefold/lemurPIE) [![Build Status](https://travis-ci.org/reversefold/lemurPIE.svg)](https://travis-ci.org/reversefold/lemurPIE)
