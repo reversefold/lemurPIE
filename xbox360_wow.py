@@ -1,4 +1,5 @@
 if starting:
+    from collections import OrderedDict
     import math
 
     from lemur import *
@@ -24,8 +25,8 @@ if starting:
     AXIS_THRESHOLD = 0.4
     MOUSE_MULTIPLIER = 1.5
 
-    key_maps = {
-        None: {
+    key_maps = OrderedDict([
+        (None, {
             'a': ButtonActions(
                 KeyDown(Key.D1),
                 KeyUp(Key.D1)
@@ -50,20 +51,32 @@ if starting:
             'right': ButtonActions(Key.Grave),
             'back': ButtonActions(Key.M),
             'start': ButtonActions(Key.Tab),
-        },
-        'leftTrigger': {
+        }),
+        ('leftTrigger', {
             'a': ButtonActions(Key.D5),
             'x': ButtonActions(Key.D6),
             'y': ButtonActions(Key.D7),
             'b': ButtonActions(Key.D8),
-        },
-        'rightTrigger': {
+        }),
+        ('rightTrigger', {
             'a': ButtonActions(Key.D9),
             'x': ButtonActions(Key.D0),
             'y': ButtonActions(Key.Minus),
             'b': ButtonActions(Key.Equals),
-        }
-    }
+        }),
+        ('leftTrigger,rightTrigger', {
+            'a': ButtonActions(Key.NumberPad0),
+            'x': ButtonActions(Key.NumberPadPeriod),
+            'y': ButtonActions(
+                [KeyDown(Key.LeftShift), KeyDown(Key.Z), KeyUp(Key.LeftShift)],
+                KeyUp(Key.Z)
+            ),
+            'b': ButtonActions(
+                [KeyDown(Key.LeftShift), KeyDown(Key.X), KeyUp(Key.LeftShift)],
+                KeyUp(Key.X)
+            ),
+        }),
+    ])
 
     class WoWController(object):
         def __init__(self, key_maps, controller):
@@ -75,16 +88,18 @@ if starting:
         def tick(self):
             self.controller.tick()
 
-            for button, key_map in self.key_maps.iteritems():
-                if button is None:
+            for buttons, key_map in self.key_maps.iteritems():
+                if buttons is None:
                     continue
-                if getattr(self.controller.source, button) > 0.25:
+                buttonsl = buttons.split(',')
+                if all(getattr(self.controller.source, button) > 0.25 for button in buttonsl):
                     self.current_map = dict(self.key_maps[None])
                     self.current_map.update(key_map)
-                    self.button_states[button] = True
-                elif self.button_states.get(button, False):
+                    self.button_states[buttons] = True
+                elif self.button_states.get(buttons, False):
                     self.current_map = self.key_maps[None]
-                    self.button_states[button] = False
+                    self.button_states[buttons] = False
+
             for button_name, key in self.current_map.iteritems():
                 button = getattr(self.controller, button_name)
                 if button.state == Button.State.PRESSED:
