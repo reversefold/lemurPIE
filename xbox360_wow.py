@@ -88,17 +88,17 @@ if starting:
         def tick(self):
             self.controller.tick()
 
-            for buttons, key_map in self.key_maps.iteritems():
-                if buttons is None:
+            for triggers, key_map in self.key_maps.iteritems():
+                if triggers is None:
                     continue
-                buttonsl = buttons.split(',')
-                if all(getattr(self.controller.source, button) > 0.25 for button in buttonsl):
+                triggersl = triggers.split(',')
+                if all(getattr(self.controller, trigger).value > 0.25 for trigger in triggersl):
                     self.current_map = dict(self.key_maps[None])
                     self.current_map.update(key_map)
-                    self.button_states[buttons] = True
-                elif self.button_states.get(buttons, False):
+                    self.button_states[triggers] = True
+                elif self.button_states.get(triggers, False):
                     self.current_map = self.key_maps[None]
-                    self.button_states[buttons] = False
+                    self.button_states[triggers] = False
 
             for button_name, key in self.current_map.iteritems():
                 button = getattr(self.controller, button_name)
@@ -108,7 +108,7 @@ if starting:
                     key.release()
 
             for axis, keys in axis_maps.iteritems():
-                axis_val = getattr(self.controller.source, axis)
+                axis_val = getattr(self.controller, axis)
                 key = None
                 if axis_val < -AXIS_THRESHOLD:
                     key = keys[0]
@@ -122,8 +122,8 @@ if starting:
                     keyboard.setKeyDown(key)
                     self.button_states[key] = True
 
-            rsx = self.controller.source.rightStickX
-            rsy = self.controller.source.rightStickY
+            rsx = self.controller.rightStick.x
+            rsy = self.controller.rightStick.y
             if abs(rsx) > AXIS_THRESHOLD:
                 mouse.deltaX = (abs(rsx) - AXIS_THRESHOLD) / (1.0 - AXIS_THRESHOLD) * MOUSE_MULTIPLIER * math.copysign(1, rsx) # * (0.5 if xbc.rightThumb else 1)
             if abs(rsy) > AXIS_THRESHOLD:

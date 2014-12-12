@@ -1,10 +1,10 @@
-from lemur import Button
+from lemur import Button, Tickable, Trigger, Stick
 
 
-class Controller(object):
+class Controller(Tickable):
 	def tick(self):
 		for prop in self.__dict__.values():
-			if isinstance(prop, Button):
+			if isinstance(prop, Tickable):
 				prop.tick()
 
 
@@ -27,7 +27,23 @@ class XBox360(Controller):
 		self.left = Button(source, 'left')
 		self.right = Button(source, 'right')
 
-		self.leftTrigger = None
-		self.rightTrigger = None
-		self.leftStick = None
-		self.rightStick = None
+		self.leftTrigger = Trigger(source, 'leftTrigger')
+		self.rightTrigger = Trigger(source, 'rightTrigger')
+		self.leftStick = Stick(source, 'leftStickX', 'leftStickY')
+		self.rightStick = Stick(source, 'rightStickX', 'rightStickY')
+
+	@property
+	def leftStickX(self):
+		return self.leftStick.x
+
+	@property
+	def leftStickY(self):
+		return self.leftStick.y
+
+	@property
+	def rightStickX(self):
+		return self.rightStick.x
+
+	@property
+	def rightStickY(self):
+		return self.rightStick.y
