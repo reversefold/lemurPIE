@@ -1,6 +1,6 @@
 import time
 
-from osx import XBox360
+from lemur.osx import XBox360
 from xbox360_wow import WowController
 
 def main():
