@@ -8,6 +8,11 @@
 
 if starting:
     from lemur.controller import XBox360
+
+    import lemur.action
+    lemur.action.keyboard = keyboard
+    lemur.action.mouse = mouse
+
     from xbox360_wow import WowController
 
     controller = XBox360(xbox360[0])

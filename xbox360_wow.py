@@ -4,9 +4,6 @@ import math
 from lemur import *
 from lemur.action import *
 from lemur.trigger import TriggerThreshold
-import lemur.action
-lemur.action.keyboard = keyboard
-lemur.action.mouse = mouse
 
 axis_maps = {
     'leftStickY': [Key.S, Key.W],
