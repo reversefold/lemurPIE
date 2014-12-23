@@ -83,7 +83,7 @@ def make_action(action):
 class ButtonActions(object):
     def __init__(self, press_action, release_action=None):
         if release_action is None:
-            if isinstance(press_action, Action) or callable(press_action):
+            if isinstance(press_action, Action):
                 raise InvalidAction("ButtonActions requires one key or two actions")
             release_action = KeyUp(press_action)
             press_action = KeyDown(press_action)
