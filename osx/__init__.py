@@ -1,6 +1,7 @@
 import pygame
 import Quartz
 
+from lemur.controller import XBox360 as XBox360Base
 from lemur import Tickable
 
 """
@@ -30,7 +31,7 @@ Axes:
 5 rightTrigger 1 (pressed) -1 (released)
 """
 
-class XBox360(Tickable):
+class XBox360Source(Tickable):
     def __init__(self, idx=0):
         self.idx = idx
         pygame.init()
@@ -124,4 +125,11 @@ class XBox360(Tickable):
     def rightTrigger(self):
         return joy.get_axis(0)
 
-xbox360 = [XBox360()]
+class XBox360(XBox360Base):
+    def __init__(self, idx):
+        super(XBox360, self).__init__(XBox360Source(idx))
+
+    def tick(self):
+        self.source.tick()
+        super(XBox360, self).tick()
+
