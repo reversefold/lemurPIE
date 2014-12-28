@@ -1,21 +1,12 @@
-#a, x, y, b
-#1, 2, 3, 4
-#5, 6, 7, 8
-#9, 0, -, =
-#Numpad 0, Numpad ., Sh-z, Sh-x
-
-#b, Sh-`, Mouse 4, `
-
 if starting:
     from lemur.controller import XBox360
+    from lemur.xbox360_wow import key_maps, axis_maps, WoWController
 
     import lemur.action
     lemur.action.keyboard = keyboard
     lemur.action.mouse = mouse
 
-    from xbox360_wow import WowController
-
     controller = XBox360(xbox360[0])
-    wow_controller = WoWController(controller)
+    wow_controller = WoWController(controller, key_maps(Key), axis_maps(Key))
 
 wow_controller.tick()

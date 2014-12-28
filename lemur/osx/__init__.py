@@ -1,3 +1,4 @@
+import keycode
 import pygame
 import Quartz
 
@@ -43,87 +44,88 @@ class XBox360Source(Tickable):
 
     @property
     def up(self):
-        return joy.get_button(0)
+        return self.joy.get_button(0)
 
     @property
     def down(self):
-        return joy.get_button(1)
+        return self.joy.get_button(1)
 
     @property
     def left(self):
-        return joy.get_button(2)
+        return self.joy.get_button(2)
 
     @property
     def right(self):
-        return joy.get_button(3)
+        return self.joy.get_button(3)
 
     @property
     def start(self):
-        return joy.get_button(4)
+        return self.joy.get_button(4)
 
     @property
     def back(self):
-        return joy.get_button(5)
+        return self.joy.get_button(5)
 
     @property
-    def leftStick(self):
-        return joy.get_button(6)
+    def leftThumb(self):
+        return self.joy.get_button(6)
 
     @property
-    def rightStick(self):
-        return joy.get_button(7)
+    def rightThumb(self):
+        return self.joy.get_button(7)
 
     @property
-    def leftBumper(self):
-        return joy.get_button(8)
+    def leftShoulder(self):
+        return self.joy.get_button(8)
 
     @property
-    def rightBumper(self):
-        return joy.get_button(9)
+    def rightShoulder(self):
+        return self.joy.get_button(9)
 
     @property
     def xbox(self):
-        return joy.get_button(10)
+        return self.joy.get_button(10)
 
     @property
     def a(self):
-        return joy.get_button(11)
+        return self.joy.get_button(11)
 
     @property
     def b(self):
-        return joy.get_button(12)
+        return self.joy.get_button(12)
 
     @property
     def x(self):
-        return joy.get_button(13)
+        return self.joy.get_button(13)
 
     @property
     def y(self):
-        return joy.get_button(14)
+        return self.joy.get_button(14)
 
     @property
     def leftStickX(self):
-        return joy.get_axis(0)
+        return self.joy.get_axis(0)
 
     @property
     def leftStickY(self):
-        return joy.get_axis(0)
+        return -self.joy.get_axis(1)
 
     @property
     def rightStickX(self):
-        return joy.get_axis(0)
+        return self.joy.get_axis(2)
 
     @property
     def rightStickY(self):
-        return joy.get_axis(0)
+        return -self.joy.get_axis(3)
 
     @property
     def leftTrigger(self):
-        return joy.get_axis(0)
+        return self.joy.get_axis(4)
 
     @property
     def rightTrigger(self):
-        return joy.get_axis(0)
+        return self.joy.get_axis(5)
+
 
 class XBox360(XBox360Base):
     def __init__(self, idx):
@@ -133,3 +135,117 @@ class XBox360(XBox360Base):
         self.source.tick()
         super(XBox360, self).tick()
 
+
+class Keyboard(object):
+    def keyboard_event(self, keycode, down):
+        # TODO: do we need to generate this every time?
+        source = Quartz.CGEventSourceCreate(Quartz.kCGEventSourceStateCombinedSessionState)
+        Quartz.CGEventPost(Quartz.kCGAnnotatedSessionEventTap,
+            Quartz.CGEventCreateKeyboardEvent(source, keycode, down))
+
+    def setKeyDown(self, key):
+        self.keyboard_event(key, True)
+
+    def setKeyUp(self, key):
+        self.keyboard_event(key, False)
+
+
+class Mouse(object):
+    def __init__(self):
+        self.posx = 0
+        self.posy = 0
+        self.leftDown = False
+        self.rightDown = False
+
+    def mouse_event(self, type, button):
+        Quartz.CGEventPost(
+            Quartz.kCGHIDEventTap,
+            Quartz.CGEventCreateMouseEvent(
+                    None,
+                    type,
+                    (self.posx, self.posy),
+                    button))
+
+    def setButton(self, idx, down):
+        if idx == 0:
+            self.leftDown = down
+        elif idx == 1:
+            self.rightDown = down
+        self.mouse_event(
+            (Quartz.kCGEventLeftMouseDown if down else Quartz.kCGEventLeftMouseUp) if idx == 0
+                else (Quartz.kCGEventRightMouseDown if down else Quartz.kCGEventRightMouseUp),
+            Quartz.kCGMouseButtonLeft if idx == 0 else Quartz.kCGMouseButtonRight
+        )
+
+    def mouse_moved(self):
+        self.mouse_event(Quartz.kCGEventLeftMouseDragged if self.leftDown else (Quartz.kCGEventRightMouseDragged if self.rightDown else Quartz.kCGEventMouseMoved),
+            Quartz.kCGMouseButtonRight if self.rightDown else Quartz.kCGMouseButtonLeft)
+
+    @property
+    def deltaX(self):
+        return 0
+
+    @deltaX.setter
+    def deltaX(self, value):
+        self.posx += value * 3
+        self.posx = max(0, self.posx)
+        self.mouse_moved()
+
+    @property
+    def deltaY(self):
+        return 0
+
+    @deltaY.setter
+    def deltaY(self, value):
+        self.posy += value  * 3
+        self.posy = max(0, self.posy)
+        self.mouse_moved()
+
+
+class Key(object):
+    A = keycode.tokeycode('a')
+    B = keycode.tokeycode('b')
+    C = keycode.tokeycode('c')
+    D = keycode.tokeycode('d')
+    E = keycode.tokeycode('e')
+    F = keycode.tokeycode('f')
+    G = keycode.tokeycode('g')
+    H = keycode.tokeycode('h')
+    I = keycode.tokeycode('i')
+    J = keycode.tokeycode('j')
+    K = keycode.tokeycode('k')
+    L = keycode.tokeycode('l')
+    M = keycode.tokeycode('m')
+    N = keycode.tokeycode('n')
+    O = keycode.tokeycode('o')
+    P = keycode.tokeycode('p')
+    Q = keycode.tokeycode('q')
+    R = keycode.tokeycode('r')
+    S = keycode.tokeycode('s')
+    T = keycode.tokeycode('t')
+    U = keycode.tokeycode('u')
+    V = keycode.tokeycode('v')
+    W = keycode.tokeycode('w')
+    X = keycode.tokeycode('x')
+    Y = keycode.tokeycode('y')
+    Z = keycode.tokeycode('z')
+    D1 = keycode.tokeycode('1')
+    D2 = keycode.tokeycode('2')
+    D3 = keycode.tokeycode('3')
+    D4 = keycode.tokeycode('4')
+    D5 = keycode.tokeycode('5')
+    D6 = keycode.tokeycode('6')
+    D7 = keycode.tokeycode('7')
+    D8 = keycode.tokeycode('8')
+    D9 = keycode.tokeycode('9')
+    D0 = keycode.tokeycode('0')
+    Space = keycode.tokeycode(' ')
+    Grave = keycode.tokeycode('`')
+    Minus = keycode.tokeycode('-')
+    Equals = keycode.tokeycode('=')
+    Apostrophe = keycode.tokeycode("'")
+    Tab = keycode.tokeycode("\t")  # 0x30
+    CapsLock = 0x39
+    #NumberLock
+    NumberPadPeriod = 0x41
+    LeftShift = 0x38
