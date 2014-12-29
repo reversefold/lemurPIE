@@ -197,6 +197,9 @@ class Mouse(Tickable):
         )
 
     def mouse_moved(self):
+        e = Quartz.CGEventCreate(None)
+        pos = Quartz.CGEventGetLocation(e)
+        (self.posx, self.posy) = (pos.x, pos.y)
         self._deltaX *= 3
         self._deltaY *= 3
         self.posx += self._deltaX
