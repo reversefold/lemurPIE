@@ -1,10 +1,17 @@
 from lemur import Error
 
+# These need to be set by the user
+keyboard = None
+mouse = None
+
+
 class ActionError(Error):
     pass
 
+
 class ActionNotExecutable(ActionError):
     pass
+
 
 class InvalidAction(ActionError):
     pass

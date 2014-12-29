@@ -151,8 +151,9 @@ class XBox360(XBox360Base):
 
 
 class Keyboard(object):
+    #TODO: LeftShift not working
     def keyboard_event(self, keycode, down):
-        # TODO: do we need to generate this every time?
+        # TODO: do we need to generate the source every time?
         source = Quartz.CGEventSourceCreate(Quartz.kCGEventSourceStateCombinedSessionState)
         Quartz.CGEventPost(Quartz.kCGAnnotatedSessionEventTap,
             Quartz.CGEventCreateKeyboardEvent(source, keycode, down))
@@ -173,6 +174,7 @@ class Mouse(Tickable):
         self._deltaX = 0
         self._deltaY = 0
 
+    #TODO: when the mouse if disassociated from the cursor we shouldn't be updating the position
     def mouse_event(self, event_type, button, move=False):
         event = Quartz.CGEventCreateMouseEvent(
             None,
