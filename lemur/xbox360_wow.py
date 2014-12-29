@@ -135,7 +135,10 @@ def key_maps(Key):
                 ],
                 KeyUp(Key.Grave)
             ),
-            'up': ButtonActions(Key.CapsLock),  # MouseButtonDown(3), MouseButtonUp(3)),
+            'up': ButtonActions(
+                [KeyDown(Key.LeftShift), KeyDown(Key.Backslash), KeyUp(Key.Backslash)],
+                KeyUp(Key.Z)
+            ),
             'right': ButtonActions(Key.Grave),
             'back': ButtonActions(Key.M),
             'start': ButtonActions(Key.Tab),
@@ -218,3 +221,6 @@ class WoWController(object):
             lemur.action.mouse.deltaX = (abs(rsx) - AXIS_THRESHOLD) / (1.0 - AXIS_THRESHOLD) * MOUSE_MULTIPLIER * math.copysign(1, rsx)  # * (0.5 if xbc.rightThumb else 1)
         if abs(rsy) > AXIS_THRESHOLD:
             lemur.action.mouse.deltaY = (abs(rsy) - AXIS_THRESHOLD) / (1.0 - AXIS_THRESHOLD) * MOUSE_MULTIPLIER * -math.copysign(1, rsy)  # * (0.5 if xbc.rightThumb else 1)
+
+        if isinstance(lemur.action.mouse, Tickable):
+            lemur.action.mouse.tick()

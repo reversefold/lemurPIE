@@ -32,15 +32,29 @@ Axes:
 5 rightTrigger 1 (pressed) -1 (released)
 """
 
+class MockJoystick(Tickable):
+    def get_button(self, i):
+        return False
+
+    def get_axis(self, i):
+        return 0
+
+
 class XBox360Source(Tickable):
     def __init__(self, idx=0):
         self.idx = idx
         pygame.init()
-        self.joy = pygame.joystick.Joystick(idx)
-        self.joy.init()
+        self.mock_joy = MockJoystick()
+        self.joy = self.mock_joy
 
     def tick(self):
         pygame.event.pump()
+        if pygame.joystick.get_count() > self.idx:
+            if self.joy is self.mock_joy:
+                self.joy = pygame.joystick.Joystick(self.idx)
+                self.joy.init()
+        else:
+            self.joy = self.mock_joy
 
     @property
     def up(self):
@@ -150,21 +164,26 @@ class Keyboard(object):
         self.keyboard_event(key, False)
 
 
-class Mouse(object):
+class Mouse(Tickable):
     def __init__(self):
         self.posx = 0
         self.posy = 0
         self.leftDown = False
         self.rightDown = False
+        self._deltaX = 0
+        self._deltaY = 0
 
-    def mouse_event(self, type, button):
-        Quartz.CGEventPost(
-            Quartz.kCGHIDEventTap,
-            Quartz.CGEventCreateMouseEvent(
-                    None,
-                    type,
-                    (self.posx, self.posy),
-                    button))
+    def mouse_event(self, event_type, button, move=False):
+        event = Quartz.CGEventCreateMouseEvent(
+            None,
+            event_type,
+            (self.posx, self.posy),
+            button)
+        Quartz.CGEventSetType(event, event_type)
+        if move:
+            Quartz.CGEventSetIntegerValueField(event, Quartz.kCGMouseEventDeltaX, int(self._deltaX))
+            Quartz.CGEventSetIntegerValueField(event, Quartz.kCGMouseEventDeltaY, int(self._deltaY))
+        Quartz.CGEventPost(Quartz.kCGHIDEventTap, event)
 
     def setButton(self, idx, down):
         if idx == 0:
@@ -178,27 +197,40 @@ class Mouse(object):
         )
 
     def mouse_moved(self):
-        self.mouse_event(Quartz.kCGEventLeftMouseDragged if self.leftDown else (Quartz.kCGEventRightMouseDragged if self.rightDown else Quartz.kCGEventMouseMoved),
-            Quartz.kCGMouseButtonRight if self.rightDown else Quartz.kCGMouseButtonLeft)
+        self._deltaX *= 3
+        self._deltaY *= 3
+        self.posx += self._deltaX
+        self.posx = max(0, self.posx)
+        self.posy += self._deltaY
+        self.posy = max(0, self.posy)
+        self.mouse_event(
+            Quartz.kCGEventLeftMouseDragged if self.leftDown
+                else (Quartz.kCGEventRightMouseDragged if self.rightDown
+                    else Quartz.kCGEventMouseMoved),
+            Quartz.kCGMouseButtonRight if self.rightDown else Quartz.kCGMouseButtonLeft,
+            True)
+        self._deltaX = 0
+        self._deltaY = 0
 
     @property
     def deltaX(self):
-        return 0
+        return self._deltaX
 
     @deltaX.setter
     def deltaX(self, value):
-        self.posx += value * 3
-        self.posx = max(0, self.posx)
-        self.mouse_moved()
+        self._deltaX = value
 
     @property
     def deltaY(self):
-        return 0
+        return self._deltaY
 
     @deltaY.setter
     def deltaY(self, value):
-        self.posy += value  * 3
-        self.posy = max(0, self.posy)
+        self._deltaY = value
+
+    def tick(self):
+        if self._deltaX == 0 and self._deltaY == 0:
+            return
         self.mouse_moved()
 
 
@@ -239,6 +271,7 @@ class Key(object):
     D8 = keycode.tokeycode('8')
     D9 = keycode.tokeycode('9')
     D0 = keycode.tokeycode('0')
+    Backslash = keycode.tokeycode('\\')
     Space = keycode.tokeycode(' ')
     Grave = keycode.tokeycode('`')
     Minus = keycode.tokeycode('-')
