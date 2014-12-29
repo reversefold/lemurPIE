@@ -150,13 +150,101 @@ class XBox360(XBox360Base):
         super(XBox360, self).tick()
 
 
+class Key(object):
+    A = keycode.tokeycode('a')
+    B = keycode.tokeycode('b')
+    C = keycode.tokeycode('c')
+    D = keycode.tokeycode('d')
+    E = keycode.tokeycode('e')
+    F = keycode.tokeycode('f')
+    G = keycode.tokeycode('g')
+    H = keycode.tokeycode('h')
+    I = keycode.tokeycode('i')
+    J = keycode.tokeycode('j')
+    K = keycode.tokeycode('k')
+    L = keycode.tokeycode('l')
+    M = keycode.tokeycode('m')
+    N = keycode.tokeycode('n')
+    O = keycode.tokeycode('o')
+    P = keycode.tokeycode('p')
+    Q = keycode.tokeycode('q')
+    R = keycode.tokeycode('r')
+    S = keycode.tokeycode('s')
+    T = keycode.tokeycode('t')
+    U = keycode.tokeycode('u')
+    V = keycode.tokeycode('v')
+    W = keycode.tokeycode('w')
+    X = keycode.tokeycode('x')
+    Y = keycode.tokeycode('y')
+    Z = keycode.tokeycode('z')
+    D1 = keycode.tokeycode('1')
+    D2 = keycode.tokeycode('2')
+    D3 = keycode.tokeycode('3')
+    D4 = keycode.tokeycode('4')
+    D5 = keycode.tokeycode('5')
+    D6 = keycode.tokeycode('6')
+    D7 = keycode.tokeycode('7')
+    D8 = keycode.tokeycode('8')
+    D9 = keycode.tokeycode('9')
+    D0 = keycode.tokeycode('0')
+    Backslash = keycode.tokeycode('\\')
+    Space = keycode.tokeycode(' ')
+    Grave = keycode.tokeycode('`')
+    Minus = keycode.tokeycode('-')
+    Equals = keycode.tokeycode('=')
+    Apostrophe = keycode.tokeycode("'")
+    Tab = keycode.tokeycode("\t")  # 0x30
+
+    #NumberLock
+    NumberPadPeriod = 0x41
+    LeftShift = 0x38
+
+    Return                    = 0x24,
+    #Tab                       = 0x30,
+    Space                     = 0x31,
+    Delete                    = 0x33,
+    Escape                    = 0x35,
+    Command                   = 0x37,
+    Shift                     = 0x38,
+    CapsLock                  = 0x39,
+    Option                    = 0x3A,
+    Control                   = 0x3B,
+    RightShift                = 0x3C,
+    RightOption               = 0x3D,
+    RightControl              = 0x3E,
+    Function                  = 0x3F,
+
+
 class Keyboard(object):
+    KEY_FLAGS = {
+        Key.LeftShift: Quartz.kCGEventFlagMaskShift,
+        Key.RightShift: Quartz.kCGEventFlagMaskShift,
+        Key.Command: Quartz.kCGEventFlagMaskCommand,
+        Key.Option: Quartz.kCGEventFlagMaskAlternate,
+        Key.Control: Quartz.kCGEventFlagMaskControl,
+        # apparently not needed....why is this one handled automatically but the other not?
+        #Key.CapsLock: Quartz.kCGEventFlagMaskAlphaShift,
+    }
+
+    def __init__(self):
+        self.flags = 0
+        self.unhandled_flags = 0xFFFFFFFFFFFFFFFF
+        for val in Keyboard.KEY_FLAGS.values():
+            self.unhandled_flags &= ~val
+
     #TODO: LeftShift not working
     def keyboard_event(self, keycode, down):
         # TODO: do we need to generate the source every time?
         source = Quartz.CGEventSourceCreate(Quartz.kCGEventSourceStateCombinedSessionState)
-        Quartz.CGEventPost(Quartz.kCGAnnotatedSessionEventTap,
-            Quartz.CGEventCreateKeyboardEvent(source, keycode, down))
+        # should we do this before or after the key event?
+        if keycode in Keyboard.KEY_FLAGS:
+            if down:
+                self.flags |= Keyboard.KEY_FLAGS[keycode]
+            else:
+                self.flags &= ~Keyboard.KEY_FLAGS[keycode]
+        event = Quartz.CGEventCreateKeyboardEvent(source, keycode, down)
+        Quartz.CGEventSetFlags(event, self.flags | (Quartz.CGEventGetFlags(event) & self.unhandled_flags))
+        Quartz.CGEventPost(Quartz.kCGAnnotatedSessionEventTap, event)
 
     def setKeyDown(self, key):
         self.keyboard_event(key, True)
@@ -237,53 +325,3 @@ class Mouse(Tickable):
         if self._deltaX == 0 and self._deltaY == 0:
             return
         self.mouse_moved()
-
-
-class Key(object):
-    A = keycode.tokeycode('a')
-    B = keycode.tokeycode('b')
-    C = keycode.tokeycode('c')
-    D = keycode.tokeycode('d')
-    E = keycode.tokeycode('e')
-    F = keycode.tokeycode('f')
-    G = keycode.tokeycode('g')
-    H = keycode.tokeycode('h')
-    I = keycode.tokeycode('i')
-    J = keycode.tokeycode('j')
-    K = keycode.tokeycode('k')
-    L = keycode.tokeycode('l')
-    M = keycode.tokeycode('m')
-    N = keycode.tokeycode('n')
-    O = keycode.tokeycode('o')
-    P = keycode.tokeycode('p')
-    Q = keycode.tokeycode('q')
-    R = keycode.tokeycode('r')
-    S = keycode.tokeycode('s')
-    T = keycode.tokeycode('t')
-    U = keycode.tokeycode('u')
-    V = keycode.tokeycode('v')
-    W = keycode.tokeycode('w')
-    X = keycode.tokeycode('x')
-    Y = keycode.tokeycode('y')
-    Z = keycode.tokeycode('z')
-    D1 = keycode.tokeycode('1')
-    D2 = keycode.tokeycode('2')
-    D3 = keycode.tokeycode('3')
-    D4 = keycode.tokeycode('4')
-    D5 = keycode.tokeycode('5')
-    D6 = keycode.tokeycode('6')
-    D7 = keycode.tokeycode('7')
-    D8 = keycode.tokeycode('8')
-    D9 = keycode.tokeycode('9')
-    D0 = keycode.tokeycode('0')
-    Backslash = keycode.tokeycode('\\')
-    Space = keycode.tokeycode(' ')
-    Grave = keycode.tokeycode('`')
-    Minus = keycode.tokeycode('-')
-    Equals = keycode.tokeycode('=')
-    Apostrophe = keycode.tokeycode("'")
-    Tab = keycode.tokeycode("\t")  # 0x30
-    CapsLock = 0x39
-    #NumberLock
-    NumberPadPeriod = 0x41
-    LeftShift = 0x38

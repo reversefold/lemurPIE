@@ -131,9 +131,9 @@ def key_maps(Key):
                 [
                     KeyDown(Key.LeftShift),
                     KeyDown(Key.Grave),
-                    KeyUp(Key.LeftShift)
+                    KeyUp(Key.LeftShift),
                 ],
-                KeyUp(Key.Grave)
+                KeyUp(Key.Grave),
             ),
             'up': ButtonActions(
                 [KeyDown(Key.LeftShift), KeyDown(Key.Backslash), KeyUp(Key.Backslash)],
