@@ -1,3 +1,5 @@
+import time
+
 import keycode
 import pygame
 import Quartz
@@ -32,6 +34,10 @@ Axes:
 5 rightTrigger 1 (pressed) -1 (released)
 """
 
+
+DISCONNECT_THRESHOLD = 1  # seconds
+
+
 class MockJoystick(Tickable):
     def get_button(self, i):
         return False
@@ -46,15 +52,34 @@ class XBox360Source(Tickable):
         pygame.init()
         self.mock_joy = MockJoystick()
         self.joy = self.mock_joy
+        self.last_update = 0
 
     def tick(self):
+        now = time.time()
+        for event in pygame.event.get():
+            if hasattr(event, 'joy'):
+                self.last_update = now
+        if now - self.last_update > DISCONNECT_THRESHOLD:
+            #print 'Checking for joystick disconnect'
+            pygame.joystick.quit()
+            self.joy = self.mock_joy
+            pygame.joystick.init()
+            self.last_update = now
+            disconnect_check = True
+        else:
+            disconnect_check = False
+
         pygame.event.pump()
+
         if pygame.joystick.get_count() > self.idx:
             if self.joy is self.mock_joy:
+                #print 'Joystick connected'
                 self.joy = pygame.joystick.Joystick(self.idx)
                 self.joy.init()
-        else:
-            self.joy = self.mock_joy
+
+        if disconnect_check and self.joy is self.mock_joy:
+            #print 'Joystick disconnected'
+            pass
 
     @property
     def up(self):
@@ -290,8 +315,8 @@ class Mouse(Tickable):
         e = Quartz.CGEventCreate(None)
         pos = Quartz.CGEventGetLocation(e)
         (self.posx, self.posy) = (pos.x, pos.y)
-        self._deltaX *= 3
-        self._deltaY *= 3
+        self._deltaX *= 4
+        self._deltaY *= 4
         self.posx += self._deltaX
         self.posx = max(0, self.posx)
         self.posy += self._deltaY
