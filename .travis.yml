@@ -4,5 +4,6 @@ python:
   - 2.7
 
 script: nosetests
+sudo: false
 
 before_install: pip install http://www.pygame.org/ftp/pygame-1.9.1release.tar.gz
